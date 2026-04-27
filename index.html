@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMC AI PRO + Order Flow Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <h1>🚀 SMC AI PRO + Order Flow Analysis</h1>
+                <span class="subtitle">Multi-Timeframe Sniper Setups + Aggressive Points</span>
+            </div>
+            <div class="header-right">
+                <select id="coinSelect" class="coin-select">
+                    <option value="BTCUSDT">BTC/USDT</option>
+                    <option value="ETHUSDT">ETH/USDT</option>
+                    <option value="BNBUSDT" selected>BNB/USDT</option>
+                    <option value="SOLUSDT">SOL/USDT</option>
+                    <option value="XRPUSDT">XRP/USDT</option>
+                    <option value="ADAUSDT">ADA/USDT</option>
+                    <option value="DOGEUSDT">DOGE/USDT</option>
+                    <option value="AVAXUSDT">AVAX/USDT</option>
+                    <option value="LINKUSDT">LINK/USDT</option>
+                    <option value="MATICUSDT">MATIC/USDT</option>
+                </select>
+                <button id="connectBtn" class="connect-btn">🔌 Connect Real-Time</button>
+                <button id="scanBtn" class="scan-btn">🔍 Scan Market</button>
+            </div>
+        </div>
+
+        <!-- SMC Analysis Panel -->
+        <div class="analysis-header">
+            <div class="status-box">
+                <div class="status-item">
+                    <span class="label">Trend (1H):</span>
+                    <span id="trendStatus" class="value">-</span>
+                </div>
+                <div class="status-item">
+                    <span class="label">MTF Align:</span>
+                    <span id="mtfStatus" class="value">-</span>
+                </div>
+                <div class="status-item">
+                    <span class="label">CHOCH:</span>
+                    <span id="chochStatus" class="value">-</span>
+                </div>
+                <div class="status-item">
+                    <span class="label">Liquidity:</span>
+                    <span id="liquidityStatus" class="value">-</span>
+                </div>
+                <div class="status-item">
+                    <span class="label">FVG:</span>
+                    <span id="fvgStatus" class="value">-</span>
+                </div>
+                <div class="status-item highlight">
+                    <span class="label">Trade Score:</span>
+                    <span id="tradeScore" class="value">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Layout -->
+        <div class="main-layout">
+            <!-- Left: Charts -->
+            <div class="left-panel">
+                <!-- Candlestick Chart with SMC Levels -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3>📊 15min Candles + SMC Levels</h3>
+                        <select id="timeframeSelect" class="timeframe-select">
+                            <option value="5m">5m</option>
+                            <option value="15m" selected>15m</option>
+                            <option value="1h">1h</option>
+                            <option value="4h">4h</option>
+                        </select>
+                    </div>
+                    <canvas id="candleChart"></canvas>
+                </div>
+
+                <!-- Order Flow Chart -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3>📈 Order Flow (Buy/Sell Volume)</h3>
+                    </div>
+                    <canvas id="orderFlowChart"></canvas>
+                </div>
+
+                <!-- Volume Profile -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3>📊 Volume Profile & Aggressive Points</h3>
+                    </div>
+                    <div id="volumeProfileContainer" class="volume-profile"></div>
+                </div>
+            </div>
+
+            <!-- Right: Analysis Boxes -->
+            <div class="right-panel">
+                <!-- Top Sniper Setups (Market Scan) -->
+                <div class="sniper-box">
+                    <div class="box-header sniper-header">
+                        <h3>🎯 Top Sniper Setups (All Coins)</h3>
+                        <span class="count" id="sniperCount">0</span>
+                    </div>
+                    <div id="sniperSetups" class="list-container"></div>
+                </div>
+
+                <!-- Aggressive Points -->
+                <div class="aggressive-box">
+                    <div class="box-header aggressive-header">
+                        <h3>⚡ Aggressive Points</h3>
+                        <span class="count" id="aggressiveCount">0</span>
+                    </div>
+                    <div id="aggressivePointsList" class="list-container"></div>
+                </div>
+
+                <!-- Whale Orders -->
+                <div class="whale-box">
+                    <div class="box-header whale-header">
+                        <h3>🐋 Whale Orders (Large Imbalance)</h3>
+                        <span class="count" id="whaleCount">0</span>
+                    </div>
+                    <div id="whaleOrdersList" class="list-container"></div>
+                </div>
+
+                <!-- SMC Structure Box -->
+                <div class="structure-box">
+                    <div class="box-header structure-header">
+                        <h3>🔷 SMC Structure (Swings & Levels)</h3>
+                    </div>
+                    <div id="structureList" class="list-container"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trade Entry Setup -->
+        <div class="trade-panel">
+            <div class="trade-setup-box">
+                <div class="box-header trade-header">
+                    <h3>📈 Trade Entry Setup (With SMC + Order Flow Confirmation)</h3>
+                </div>
+                
+                <div class="trade-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Entry Price (At Aggressive Level):</label>
+                            <input type="number" id="entryPrice" placeholder="0.00" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label>Current Price:</label>
+                            <input type="number" id="displayPrice" placeholder="0.00" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>Take Profit (Above Whale Wall):</label>
+                            <input type="number" id="takeProfit" placeholder="0.00" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label>Stop Loss (Below Aggressive Level):</label>
+                            <input type="number" id="stopLoss" placeholder="0.00" step="0.01">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Quantity (USDT):</label>
+                            <input type="number" id="quantity" placeholder="0.00" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label>Leverage:</label>
+                            <select id="leverage">
+                                <option value="1">1x</option>
+                                <option value="2">2x</option>
+                                <option value="5">5x</option>
+                                <option value="10">10x</option>
+                                <option value="20">20x</option>
+                                <option value="50">50x</option>
+                                <option value="100">100x</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Trade Confidence:</label>
+                            <select id="confidence">
+                                <option value="low">Low (< 60)</option>
+                                <option value="medium">Medium (60-75)</option>
+                                <option value="high" selected>High (75-85)</option>
+                                <option value="vhigh">Very High (85+)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Trade Details -->
+                    <div class="trade-details-box">
+                        <div class="details-grid">
+                            <div class="detail-item">
+                                <label>Risk Amount:</label>
+                                <span id="riskAmount" class="value">-</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Reward Amount:</label>
+                                <span id="rewardAmount" class="value">-</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Risk/Reward Ratio:</label>
+                                <span id="rrRatio" class="value">-</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Position Size:</label>
+                                <span id="positionSize" class="value">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button id="confirmTradeBtn" class="btn btn-success">✓ Confirm Trade Entry</button>
+                </div>
+            </div>
+
+            <!-- Trade History -->
+            <div class="trade-history-box">
+                <div class="box-header history-header">
+                    <h3>📋 Trade History (With Confirmations)</h3>
+                    <button id="exportBtn" class="btn btn-small">📥 Export</button>
+                </div>
+                <div id="tradeHistory" class="trade-history-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
